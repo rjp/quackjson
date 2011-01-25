@@ -8,12 +8,12 @@ class UAClient:
   client = None
 
   def __init__(self, username = None, password = None, filename = None):
+    # If we're given a filename, parse that (as JSON) for the authentication details
     if filename:
       try:
         fp = open(filename, 'rb')
         try:
           contents = fp.read()
-          print contents
           data = json.loads(contents)
           self.username = data['username']
           self.password = data['password']
@@ -25,6 +25,7 @@ class UAClient:
       self.username = username
       self.password = password
 
+    # You probably want to keep this on for development
     httplib2.debuglevel = 1
 
     self.client = httplib2.Http()
@@ -62,7 +63,7 @@ class UAClient:
     
     return folders
   
-  def get_folder_messages(self, folder, unread_only = True):
+  def get_folder_message_list(self, folder, unread_only = True):
     path = '/folder/' + folder
     
     if unread_only:
@@ -72,8 +73,18 @@ class UAClient:
     
     return messages
     
+  def get_folder_messages(self, folder, unread_only = True):
+    message_list = self.get_folder_message_list(folder, unread_only)
+    
+    messages = []
+    
+    for message in message_list:
+      messages.append(self.get_message(message['id']))
+    
+    return messages
+    
   def get_message(self, id):
-    path = '/messages/' + id
+    path = '/message/' + str(id)
     
     response, message = self.send_request(path)
     
