@@ -1,0 +1,5 @@
+Installation should be a simple matter of downloading the Python scripts
+and running them, assuming you already have a working Python interpreter.
+
+At present, quackjson only uses standard Python libraries so no additional
+installation should be required.
