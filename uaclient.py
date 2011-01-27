@@ -39,11 +39,11 @@ class UAClient:
     
     if method == 'GET':
       response, data = self.client.request(uri, 'GET', headers = headers)
-      data = json.loads(data)
     elif method == 'POST':
       headers['Content-Type'] = 'application/json'    
-    
       response, data = self.client.request(uri, 'POST', body = body, headers = headers)
+    
+    data = json.loads(data)
   
     return response, data
 
