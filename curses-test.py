@@ -2,7 +2,7 @@ import curses
 from quack import qUAck
 
 def duck(stdscr):
-  client = qUAck(username = 'quackjson', password = 'qjson')	
+  client = qUAck(filename = 'quackrc')	
   stdscr.addstr(client.get_menu_text())
   stdscr.refresh()
 
