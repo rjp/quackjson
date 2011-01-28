@@ -113,8 +113,10 @@ class UAClient:
     
     response, data = self.send_request(path, method = 'POST', body = body)
 
+    return response, data
+
   def subscribe(self, folder):
-    self.change_subscription(folder, 'subscribe')
+    return self.change_subscription(folder, 'subscribe')
     
   def unsubscribe(self, folder):
-    self.change_subscription(folder, 'unsubscribe')
+    return self.change_subscription(folder, 'unsubscribe')

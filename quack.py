@@ -2,8 +2,10 @@ from uaclient import UAClient
 from datetime import datetime
 
 class qUAck(UAClient):
-  def __init__(self, username = None, password = None, filename = None):
-    UAClient.__init__(self, username = username, password = password, filename = filename)
+  unrecognised_command = 'Unrecognised command. Type ? for help'
+
+  def __init__(self, username = None, password = None, filename = None, debug = False):
+    UAClient.__init__(self, username = username, password = password, filename = filename, debug = debug)
     
     self.start_time = datetime.now()
   
