@@ -1,0 +1,8 @@
+In no particular order:
+
+* Turn messages into threads (tricky without fetching each message).
+* Cache message and folder information where possible (messages should be cachable if they can't be edited).
+* Add mark_message_read function to UAClient.
+* Add auto_read parameter to message fetching functions (or when fetching from cache).
+
+Major project: Once UAClient is working, write uaHTTP which provides an interface using Flask(?)
