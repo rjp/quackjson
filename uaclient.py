@@ -7,7 +7,7 @@ class UAClient:
   password = None
   client = None
 
-  def __init__(self, username = None, password = None, filename = None):
+  def __init__(self, username = None, password = None, filename = None, debug = False):
     # If we're given a filename, parse that (as JSON) for the authentication details
     if filename:
       try:
@@ -26,7 +26,8 @@ class UAClient:
       self.password = password
 
     # You probably want to keep this on for development
-    httplib2.debuglevel = 1
+    if (debug):
+      httplib2.debuglevel = 1
 
     self.client = httplib2.Http()
     self.client.add_credentials(self.username, self.password)
@@ -101,3 +102,19 @@ class UAClient:
     path = '/folder/' + folder
     
     response, data = self.send_request(path, method = 'POST', body = body)
+    
+  def change_subscription(self, folder, change):
+    subscription = {}
+    subscription['folder'] = folder
+    
+    body = json.dumps(subscription)
+    
+    path = '/folder/' + folder + '/' + change
+    
+    response, data = self.send_request(path, method = 'POST', body = body)
+
+  def subscribe(self, folder):
+    self.change_subscription(folder, 'subscribe')
+    
+  def unsubscribe(self, folder):
+    self.change_subscription(folder, 'unsubscribe')
