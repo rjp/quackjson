@@ -8,3 +8,10 @@ Rename qUAckrc.sample to qUAckrc and insert your username and password
 for UA. Then:
 
 python run.py
+
+CHANGES FROM ORIGINAL
+
+This version of qUAck uses the JSON interface to UA, which does not support
+all of the features of the original qUAck. Some of these will be added to
+the client once server support is available, others (e.g. wholist, paging)
+may never be implemented due to HTTP being stateless.
