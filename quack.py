@@ -9,9 +9,13 @@ class qUAck(UAClient):
     self.start_time = datetime.now()
     curses.wrapper(self.startcurses)
 
-  def get_menu_text(self, menu, char_options):
-    menu_text = '+' + self.get_elapsed_time()
-    menu_text += ' ' + menu
+  def get_menu_text(self, menu, char_options, elapsed_time = False):
+    menu_text = ''
+
+    if elapsed_time:
+      menu_text = '+' + self.get_elapsed_time() + ' '
+
+    menu_text += menu
     menu_text += ' (' + ''.join(char_options).upper() + ', ?+ for help): '
 
     return menu_text
@@ -54,7 +58,7 @@ class qUAck(UAClient):
     menu_continue = True
 
     while menu_continue:
-      self.stdscr.addstr("\n" + self.get_menu_text('Main', char_options))
+      self.stdscr.addstr("\n" + self.get_menu_text('Main', char_options, elapsed_time = True))
       self.stdscr.refresh()
 
       c = self.stdscr.getch()
@@ -68,4 +72,27 @@ class qUAck(UAClient):
         self.unrecognised_command()
 
   def folder_list_menu(self):
-    pass
+    char_options = ['s', 'x']
+    menu_options = self.get_menu_options(char_options)
+    menu_continue = True
+
+    while menu_continue:
+      self.stdscr.addstr("\n" + self.get_menu_text('Folders', char_options))
+      self.stdscr.refresh()
+
+      c = self.stdscr.getch()
+
+      if c in menu_options:
+        if c == ord('x'):
+          menu_continue = False
+        elif c == ord('s'):
+          self.print_folder_list(self.get_folders(subscribed_only = True))
+          menu_continue = False
+      else:
+        self.unrecognised_command()
+
+  def print_folder_list(self, folders):
+    for folder in folders:
+      self.stdscr.addstr("\n" + folder['folder'])
+
+    self.stdscr.refresh()
