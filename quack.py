@@ -3,8 +3,6 @@ from uaclient import UAClient
 from datetime import datetime
 
 class qUAck(UAClient):
-  yellow_black = 1
-
   def __init__(self, username = None, password = None, filename = None, debug = False):
     UAClient.__init__(self, username = username, password = password, filename = filename, debug = debug)
 
@@ -15,12 +13,12 @@ class qUAck(UAClient):
     self.stdscr.addstr("\n")
 
     if elapsed_time:
-      self.stdscr.addstr('+' + self.get_elapsed_time(), curses.color_pair(self.yellow_black))
+      self.stdscr.addstr('+' + self.get_elapsed_time(), self.colours['yellow_black_bold'])
       self.stdscr.addstr(' ')
 
     self.stdscr.addstr(menu)
     self.stdscr.addstr(' (')
-    self.stdscr.addstr(''.join(char_options).upper(), curses.color_pair(self.yellow_black))
+    self.stdscr.addstr(''.join(char_options).upper(), self.colours['yellow_black_bold'])
     self.stdscr.addstr(', ?+ for help): ')
     self.stdscr.refresh()
 
@@ -40,10 +38,16 @@ class qUAck(UAClient):
     return elapsed_time
 
   def startcurses(self, stdscr):
-    curses.init_pair(self.yellow_black, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-
+    self.setup_colours()
     self.stdscr = stdscr
     self.main_menu()
+
+  def setup_colours(self):
+    self.colours = {}
+
+    curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    self.colours['yellow_black'] = curses.color_pair(1)
+    self.colours['yellow_black_bold'] = self.colours['yellow_black'] | curses.A_BOLD
 
   def unrecognised_command(self):
     self.stdscr.addstr("\nUnrecognised command. Type ? for help")
