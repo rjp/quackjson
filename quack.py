@@ -1,16 +1,20 @@
+import curses
 from uaclient import UAClient
 from datetime import datetime
 
 class qUAck(UAClient):
-  unrecognised_command = 'Unrecognised command. Type ? for help'
-
   def __init__(self, username = None, password = None, filename = None, debug = False):
     UAClient.__init__(self, username = username, password = password, filename = filename, debug = debug)
 
     self.start_time = datetime.now()
+    curses.wrapper(self.startcurses)
 
-  def get_menu_text(self):
-    return '+' + self.get_elapsed_time() + ' Main (BCDE, ?+ for help): '
+  def get_menu_text(self, menu, char_options):
+    menu_text = '+' + self.get_elapsed_time()
+    menu_text += ' ' + menu
+    menu_text += ' (' + ''.join(char_options).upper() + ', ?+ for help): '
+
+    return menu_text
 
   def get_elapsed_time(self):
     current_time = datetime.now()
@@ -26,3 +30,42 @@ class qUAck(UAClient):
     elapsed_time = hours + ':' + minutes
 
     return elapsed_time
+
+  def startcurses(self, stdscr):
+    self.stdscr = stdscr
+    self.main_menu()
+
+  def unrecognised_command(self):
+    self.stdscr.addstr("\nUnrecognised command. Type ? for help")
+    self.stdscr.refresh()
+
+  # Convert character options to menu options
+  def get_menu_options(self, options):
+    menu_options = []
+
+    for option in options:
+      menu_options.append(ord(option))
+
+    return menu_options
+
+  def main_menu(self):
+    char_options = ['l', 'q']
+    menu_options = self.get_menu_options(char_options)
+    menu_continue = True
+
+    while menu_continue:
+      self.stdscr.addstr("\n" + self.get_menu_text('Main', char_options))
+      self.stdscr.refresh()
+
+      c = self.stdscr.getch()
+
+      if c in menu_options:
+        if c == ord('q'):
+          menu_continue = False
+        elif c == ord('l'):
+          self.folder_list_menu()
+      else:
+        self.unrecognised_command()
+
+  def folder_list_menu(self):
+    pass
