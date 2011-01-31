@@ -40,6 +40,7 @@ class qUAck(UAClient):
   def startcurses(self, stdscr):
     self.setup_colours()
     self.stdscr = stdscr
+    self.stdscr.scrollok(True)
     self.main_menu()
 
   def setup_colours(self):
