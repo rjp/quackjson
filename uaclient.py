@@ -6,6 +6,8 @@ class UAClient:
   username = None
   password = None
   client = None
+  
+  cache = {}
 
   def __init__(self, username = None, password = None, filename = None, debug = False):
     # If we're given a filename, parse that (as JSON) for the authentication details
@@ -49,18 +51,20 @@ class UAClient:
     return response, data
 
   def get_folders(self, subscribed_only = False, unread_only = False):
-    # Default is to fetch all folders
-    path = '/folders'
+    if 'folders' not in self.cache:
+      path = '/folders'
 
+      response, self.cache['folders'] = self.send_request(path)
+    
+    folders = self.cache['folders']
+    
+    # No need to check for subscribed only *and* unread only, as we are always reducing the size
+    # of 'folders'
     if subscribed_only:
-      path += '/subscribed'
-    else:
-      path += '/all'
+      folders = [folder for folder in folders if folder['subscribed'] is True]
 
     if unread_only:
-      path += '/unread'
-
-    response, folders = self.send_request(path)
+      folders = [folder for folder in folders if folder['unread'] >= 1]
 
     return folders
 
@@ -120,3 +124,5 @@ class UAClient:
 
   def unsubscribe(self, folder):
     return self.change_subscription(folder, 'unsubscribe')
+
+
