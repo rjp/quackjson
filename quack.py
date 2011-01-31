@@ -49,6 +49,10 @@ class qUAck(UAClient):
     self.colours['yellow_black'] = curses.color_pair(1)
     self.colours['yellow_black_bold'] = self.colours['yellow_black'] | curses.A_BOLD
 
+    curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    self.colours['green_black'] = curses.color_pair(2)
+    self.colours['green_black_bold'] = self.colours['green_black'] | curses.A_BOLD
+
   def unrecognised_command(self):
     self.stdscr.addstr("\nUnrecognised command. Type ? for help")
     self.stdscr.refresh()
@@ -104,7 +108,8 @@ class qUAck(UAClient):
 
   def print_folder_list(self, folders):
     for folder in folders:
-      self.stdscr.addstr("\n" + folder['folder'])
+      self.stdscr.addstr("\n")
+      self.stdscr.addstr(folder['folder'], self.colours['green_black_bold'])
       self.stdscr.refresh()
 
     self.stdscr.refresh()
