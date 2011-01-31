@@ -58,18 +58,8 @@ class qUAck(UAClient):
     self.stdscr.addstr("\nUnrecognised command. Type ? for help")
     self.stdscr.refresh()
 
-  # Convert character options to menu options
-  def get_menu_options(self, options):
-    menu_options = []
-
-    for option in options:
-      menu_options.append(ord(option))
-
-    return menu_options
-
   def main_menu(self):
     char_options = ['l', 'q']
-    menu_options = self.get_menu_options(char_options)
     menu_continue = True
 
     while menu_continue:
@@ -77,17 +67,15 @@ class qUAck(UAClient):
 
       c = self.stdscr.getch()
 
-      if c in menu_options:
-        if c == ord('q'):
-          menu_continue = False
-        elif c == ord('l'):
-          self.folder_list_menu()
+      if c == ord('q'):
+        menu_continue = False
+      elif c == ord('l'):
+        self.folder_list_menu()
       else:
         self.unrecognised_command()
 
   def folder_list_menu(self):
     char_options = ['a', 's', 'x']
-    menu_options = self.get_menu_options(char_options)
     menu_continue = True
 
     while menu_continue:
@@ -95,15 +83,14 @@ class qUAck(UAClient):
 
       c = self.stdscr.getch()
 
-      if c in menu_options:
-        if c == ord('x'):
-          menu_continue = False
-        elif c == ord('a'):
-          self.print_folder_list(self.get_folders())
-          menu_continue = False
-        elif c == ord('s'):
-          self.print_folder_list(self.get_folders(subscribed_only = True))
-          menu_continue = False
+      if c == ord('x'):
+        menu_continue = False
+      elif c == ord('a'):
+        self.print_folder_list(self.get_folders())
+        menu_continue = False
+      elif c == ord('s'):
+        self.print_folder_list(self.get_folders(subscribed_only = True))
+        menu_continue = False
       else:
         self.unrecognised_command()
 
