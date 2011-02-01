@@ -38,10 +38,12 @@ class qUAck(UAClient):
     return elapsed_time
 
   def startcurses(self, stdscr):
+    curses.echo()
     self.setup_colours()
     self.stdscr = stdscr
     self.stdscr.scrollok(True)
     self.main_menu()
+    curses.noecho()
 
   def setup_colours(self):
     self.colours = {}
@@ -53,13 +55,25 @@ class qUAck(UAClient):
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
     self.colours['green_black'] = curses.color_pair(2)
     self.colours['green_black_bold'] = self.colours['green_black'] | curses.A_BOLD
+    
+    curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    self.colours['blue_black'] = curses.color_pair(3)
+    self.colours['blue_black_bold'] = self.colours['blue_black'] | curses.A_BOLD
+    
+    curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    self.colours['cyan_black'] = curses.color_pair(4)
+    self.colours['cyan_black_bold'] = self.colours['cyan_black'] | curses.A_BOLD
 
   def unrecognised_command(self):
     self.stdscr.addstr("\nUnrecognised command. Type ? for help")
     self.stdscr.refresh()
+    
+  def datetimeformat(self, timestamp, format):
+    dt = datetime.fromtimestamp(int(timestamp))
+    return dt.strftime(format)
 
   def main_menu(self):
-    char_options = ['l', 'q']
+    char_options = ['j', 'l', 'q']
     menu_continue = True
 
     while menu_continue:
@@ -71,6 +85,8 @@ class qUAck(UAClient):
         menu_continue = False
       elif c == ord('l'):
         self.folder_list_menu()
+      elif c == ord('j'):
+        self.jump_folder_message_menu()
       else:
         self.unrecognised_command()
 
@@ -101,3 +117,62 @@ class qUAck(UAClient):
       self.stdscr.refresh()
 
     self.stdscr.refresh()
+
+  def jump_folder_message_menu(self):
+    char_options = ['x', 'f', 'm']
+    
+    self.print_menu_text('Jump', char_options)
+      
+    c = self.stdscr.getch()
+      
+    if c == ord('x'):
+      pass
+    elif c == ord('f'):
+      self.jump_folder_menu()
+    elif c == ord('m'):
+      self.jump_message_menu()
+    else:
+      self.unrecognised_command()
+        
+  def jump_folder_menu(self):
+    self.stdscr.addstr("\nFolder name (RETURN to abort): ")
+    self.stdscr.refresh()
+    folder_jump = self.stdscr.getstr()
+    
+    folder = self.get_folder(folder_jump)
+    
+    if folder is None:
+      self.stdscr.addstr("\nNo such folder.")
+      self.stdscr.refresh()
+      
+  def jump_message_menu(self):
+    self.stdscr.addstr("\nMessage ID (RETURN to abort): ")
+    self.stdscr.refresh()
+    message_jump = self.stdscr.getstr()
+    
+    message = self.get_message(message_jump)
+    
+    if message is None:
+      self.stdscr.addstr("\nNo such message.")
+      self.stdscr.refresh()
+    else:
+      self.stdscr.addstr("\nMessage: ")
+      self.stdscr.addstr(str(message['id']), self.colours['cyan_black_bold'])
+      self.stdscr.addstr(" in ")
+      self.stdscr.addstr(message['folder'], self.colours['cyan_black_bold'])
+      
+      self.stdscr.addstr("\nDate: ")
+      self.stdscr.addstr(self.datetimeformat(message['epoch'], '%A, %d %B %Y - %H:%M:%S'), self.colours['green_black_bold'])
+      
+      self.stdscr.addstr("\nFrom: ")
+      self.stdscr.addstr(message['from'], self.colours['green_black_bold'])
+      
+      self.stdscr.addstr("\nTo: ")
+      self.stdscr.addstr(message['to'], self.colours['green_black_bold'])
+      
+      self.stdscr.addstr("\nSubject: ")
+      self.stdscr.addstr(message['subject'], self.colours['green_black_bold'])
+      
+      self.stdscr.addstr("\n\n" + message['body'] + "\n")
+      
+      self.stdscr.refresh()
