@@ -33,6 +33,9 @@ class UAClient:
 
     self.client = httplib2.Http()
     self.client.add_credentials(self.username, self.password)
+    
+    # Initialise cache
+    self.get_folders()
 
   def send_request(self, path, method = 'GET', params = {}, body = None):
     uri = self.base_uri + path
