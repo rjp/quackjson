@@ -3,10 +3,9 @@ import json
 
 class UAClient:
   base_uri = 'http://www.ua2.org/uaJSON'
-  username = None
-  password = None
   client = None
   
+  config = {}
   cache = {}
 
   def __init__(self, username = None, password = None, filename = None, debug = False):
@@ -16,26 +15,24 @@ class UAClient:
         fp = open(filename, 'rb')
         try:
           contents = fp.read()
-          data = json.loads(contents)
-          self.username = data['username']
-          self.password = data['password']
+          self.config = json.loads(contents)
         finally:
           fp.close()
       except IOError:
         pass
     else:
-      self.username = username
-      self.password = password
+      self.config['username'] = username
+      self.config['password'] = password
 
     # You probably want to keep this on for development
     if (debug):
       httplib2.debuglevel = 1
 
     self.client = httplib2.Http()
-    self.client.add_credentials(self.username, self.password)
+    self.client.add_credentials(self.config['username'], self.config['password'])
     
     # Initialise cache
-    self.get_folders()
+    self.update_cache()
 
   def send_request(self, path, method = 'GET', params = {}, body = None):
     uri = self.base_uri + path
@@ -53,12 +50,13 @@ class UAClient:
 
     return response, data
 
-  def get_folders(self, subscribed_only = False, unread_only = False):
+  def update_cache(self):
     if 'folders' not in self.cache:
       path = '/folders'
 
       response, self.cache['folders'] = self.send_request(path)
-    
+
+  def get_folders(self, subscribed_only = False, unread_only = False):
     folders = self.cache['folders']
     
     # No need to check for subscribed only *and* unread only, as we are always reducing the size
@@ -70,6 +68,15 @@ class UAClient:
       folders = [folder for folder in folders if folder['unread'] >= 1]
 
     return folders
+
+  def get_folder(self, name):
+    name = name.lower()
+    folders = [folder for folder in self.cache['folders'] if folder['folder'].lower() == name]
+    
+    if len(folders) == 1:
+      return folders[0]
+    else:
+      return None
 
   def get_folder_message_list(self, folder, unread_only = True):
     path = '/folder/' + folder
@@ -95,6 +102,10 @@ class UAClient:
     path = '/message/' + str(id)
 
     response, message = self.send_request(path)
+    
+    if response.status == '404':
+      # Possibly better throwing an exception here
+      return None
 
     return message
 
@@ -127,5 +138,3 @@ class UAClient:
 
   def unsubscribe(self, folder):
     return self.change_subscription(folder, 'unsubscribe')
-
-

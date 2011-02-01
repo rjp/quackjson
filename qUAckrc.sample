@@ -1,4 +1,9 @@
 {
   "username":"yourusername",
-  "password":"yourpassword"
+  "password":"yourpassword",
+  "options":
+    {
+      "menus":"intermediate"
+    }
+  }
 }
