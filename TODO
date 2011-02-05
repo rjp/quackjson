@@ -4,5 +4,8 @@ In no particular order:
 * Cache message and folder information where possible (messages should be cachable if they can't be edited).
 * Add mark_message_read function to UAClient.
 * Add auto_read parameter to message fetching functions (or when fetching from cache).
+* Change options so that they include the text description as well as the character, so help menus can be auto-generated through one function.
+* Attempt to wrap words such that they do not break across lines.
+* Allow configuration of client menus.
 
 Major project: Once UAClient is working, write uaHTTP which provides an interface using Flask(?)
