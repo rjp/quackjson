@@ -107,7 +107,7 @@ class UAClient:
 
     response, message = self.send_request(path)
     
-    if response.status == '404':
+    if response.status == 404:
       # Possibly better throwing an exception here
       return None
 
