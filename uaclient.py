@@ -2,6 +2,7 @@ import httplib2
 import json
 
 class UAClient:
+  # Base URI - must not include trailing slash
   base_uri = 'http://www.ua2.org/uaJSON'
   client = None
   
