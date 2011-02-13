@@ -171,9 +171,14 @@ class qUAck(UAClient):
         self.stdscr.addstr("\nTo: ")
         self.stdscr.addstr(message['to'], self.colours['green_black_bold'])
       
-      self.stdscr.addstr("\nSubject: ")
-      self.stdscr.addstr(message['subject'], self.colours['green_black_bold'])
+      if 'subject' in message:
+        if message['subject'] is not None: # better than a default subject?
+          self.stdscr.addstr("\nSubject: ")
+          self.stdscr.addstr(message['subject'], self.colours['green_black_bold'])
       
-      self.stdscr.addstr("\n\n" + message['body'] + "\n")
+      if 'body' in message: # to be fair, this should always be true
+        if message['body'] is None: # empty body is returned as NoneType, oddly
+          message['body'] = ' '
+        self.stdscr.addstr("\n\n" + message['body'] + "\n")
       
       self.stdscr.refresh()
