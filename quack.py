@@ -167,8 +167,9 @@ class qUAck(UAClient):
       self.stdscr.addstr("\nFrom: ")
       self.stdscr.addstr(message['from'], self.colours['green_black_bold'])
       
-      self.stdscr.addstr("\nTo: ")
-      self.stdscr.addstr(message['to'], self.colours['green_black_bold'])
+      if 'to' in message:
+        self.stdscr.addstr("\nTo: ")
+        self.stdscr.addstr(message['to'], self.colours['green_black_bold'])
       
       self.stdscr.addstr("\nSubject: ")
       self.stdscr.addstr(message['subject'], self.colours['green_black_bold'])
