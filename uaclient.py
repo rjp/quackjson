@@ -25,6 +25,9 @@ class UAClient:
       self.config['username'] = username
       self.config['password'] = password
 
+    if 'base_uri' in self.config:
+        self.base_uri = self.config['base_uri']
+
     # You probably want to keep this on for development
     if (debug):
       httplib2.debuglevel = 1
