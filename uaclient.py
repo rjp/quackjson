@@ -39,6 +39,7 @@ class UAClient:
     self.update_cache()
 
   def send_request(self, path, method = 'GET', params = {}, body = None):
+    """ Send a request to the server """
     uri = self.base_uri + path
 
     headers = {}
@@ -55,12 +56,19 @@ class UAClient:
     return response, data
 
   def update_cache(self):
+    """ Update the cache """
     if 'folders' not in self.cache:
       path = '/folders'
 
       response, self.cache['folders'] = self.send_request(path)
 
   def get_folders(self, subscribed_only = False, unread_only = False):
+    """ Fetch a list of folders
+    
+        Keyword arguments:
+        subscribed_only - Only return folders which the user is subscribed to.
+        unread_only - Only return folders with unread messages.
+    """
     folders = self.cache['folders']
     
     # No need to check for subscribed only *and* unread only, as we are always reducing the size
@@ -74,6 +82,13 @@ class UAClient:
     return folders
 
   def get_folder(self, name):
+    """ Fetch the details for a given folder.
+    
+        Keyword arguments:
+        name - The name of the folder (case-insensitive).
+        
+        Returns a dictionary representation of the folder, or None if the folder does not exist.
+    """
     name = name.lower()
     folders = [folder for folder in self.cache['folders'] if folder['folder'].lower() == name]
     
@@ -83,6 +98,12 @@ class UAClient:
       return None
 
   def get_folder_message_list(self, folder, unread_only = True):
+    """ Fetch a list of messages for a given folder.
+    
+        Keyword arguments:
+        folder - Name of the folder.
+        unread_only - Only fetch unread messages.
+    """
     path = '/folder/' + folder
 
     if unread_only:
