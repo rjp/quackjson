@@ -2,25 +2,66 @@ import curses
 from uaclient import UAClient
 from datetime import datetime
 
+class qMenuOption:
+  def __init__(self, character, description):
+    self.character = character
+    self.description = description
+
+class qMenu:
+  def __init__(self, name, options = None):
+    self.options = []
+    self.name = name
+    
+    if options:
+      self.options = options
+
+  def add_option(self, option):
+    self.options.append(option)
+
 class qUAck(UAClient):
   def __init__(self, username = None, password = None, filename = None, debug = False):
     UAClient.__init__(self, username = username, password = password, filename = filename, debug = debug)
 
+    self.set_options()
+
     self.start_time = datetime.now()
     curses.wrapper(self.startcurses)
+  
+  def set_options(self):
+    """ Set the options for this instance, reverting to defaults if not specified """
+    if 'options' not in self.config:
+      self.config['options'] = {}
+    
+    if 'menus' not in self.config['options']:
+      self.config['options']['menus'] = 'expert'
 
-  def print_menu_text(self, menu, char_options, elapsed_time = False):
+  def print_menu_text(self, menu, elapsed_time = False):
     self.stdscr.addstr("\n")
 
     if elapsed_time:
       self.stdscr.addstr('+' + self.get_elapsed_time(), self.colours['yellow_black_bold'])
       self.stdscr.addstr(' ')
 
-    self.stdscr.addstr(menu)
-    self.stdscr.addstr(' (')
-    self.stdscr.addstr(''.join(char_options).upper(), self.colours['yellow_black_bold'])
-    self.stdscr.addstr(', ?+ for help): ')
+    self.stdscr.addstr(menu.name)
+    
+    if self.config['options']['menus'] == 'intermediate':
+      self.stdscr.addstr(' (')
+    
+      for option in menu.options:
+        self.stdscr.addstr(option.character.upper(), self.colours['yellow_black_bold'])
+    
+      self.stdscr.addstr(', ?+ for help)')
+    
+    self.stdscr.addstr(': ')
     self.stdscr.refresh()
+    
+  def print_menu_help(self, menu):
+    self.stdscr.addstr("\nCommands:")
+    
+    for option in menu.options:
+      self.stdscr.addstr("\n ")
+      self.stdscr.addstr(option.character.upper(), self.colours['yellow_black_bold'])
+      self.stdscr.addstr(' - ' + option.description)
 
   def get_elapsed_time(self):
     current_time = datetime.now()
@@ -73,11 +114,15 @@ class qUAck(UAClient):
     return dt.strftime(format)
 
   def main_menu(self):
-    char_options = ['j', 'l', 'q']
+    menu = qMenu('Main')
+    menu.add_option(qMenuOption('j', 'Jump to folder / message'))
+    menu.add_option(qMenuOption('l', 'List of folders'))
+    menu.add_option(qMenuOption('q', 'Quit'))
+    
     menu_continue = True
 
     while menu_continue:
-      self.print_menu_text('Main', char_options, elapsed_time = True)
+      self.print_menu_text(menu, elapsed_time = True)
 
       c = self.stdscr.getch()
 
@@ -87,15 +132,21 @@ class qUAck(UAClient):
         self.folder_list_menu()
       elif c == ord('j'):
         self.jump_folder_message_menu()
+      elif c == ord('?'):
+        self.print_menu_help(menu)
       else:
         self.unrecognised_command()
 
   def folder_list_menu(self):
-    char_options = ['a', 's', 'x']
+    menu = qMenu('Folders')
+    menu.add_option(qMenuOption('a', 'All'))
+    menu.add_option(qMenuOption('s', 'Subscribed'))
+    menu.add_option(qMenuOption('x', 'eXit'))
+
     menu_continue = True
 
     while menu_continue:
-      self.print_menu_text('Folders', char_options)
+      self.print_menu_text(menu)
 
       c = self.stdscr.getch()
 
@@ -107,6 +158,8 @@ class qUAck(UAClient):
       elif c == ord('s'):
         self.print_folder_list(self.get_folders(subscribed_only = True))
         menu_continue = False
+      elif c == ord('?'):
+        self.print_menu_help(menu)
       else:
         self.unrecognised_command()
 
@@ -119,20 +172,32 @@ class qUAck(UAClient):
     self.stdscr.refresh()
 
   def jump_folder_message_menu(self):
-    char_options = ['x', 'f', 'm']
+    menu = qMenu('Jump')
+    menu.add_option(qMenuOption('f', 'Folder'))
+    menu.add_option(qMenuOption('m', 'Message'))
+    menu.add_option(qMenuOption('x', 'eXit'))
     
-    self.print_menu_text('Jump', char_options)
+    menu_continue = True
+    
+    while menu_continue:
+      self.print_menu_text(menu)
       
-    c = self.stdscr.getch()
-      
-    if c == ord('x'):
-      pass
-    elif c == ord('f'):
-      self.jump_folder_menu()
-    elif c == ord('m'):
-      self.jump_message_menu()
-    else:
-      self.unrecognised_command()
+      c = self.stdscr.getch()
+     
+      if c == ord('x'):
+        menu_continue = False
+        pass
+      elif c == ord('f'):
+        self.jump_folder_menu()
+        menu_continue = False
+      elif c == ord('m'):
+        self.jump_message_menu()
+        menu_continue = False
+      elif c == ord('?'):
+        self.print_menu_help(menu)
+      else:
+        self.unrecognised_command()
+        menu_continue = False
         
   def jump_folder_menu(self):
     self.stdscr.addstr("\nFolder name (RETURN to abort): ")
