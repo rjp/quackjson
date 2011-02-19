@@ -2,14 +2,14 @@ import httplib2
 import json
 
 class UAClient:
-  # Base URI - must not include trailing slash
-  base_uri = 'http://www.ua2.org/uaJSON'
-  client = None
-  
-  config = {}
-  cache = {}
-
   def __init__(self, username = None, password = None, filename = None, debug = False):
+    self.config = {}
+    self.cache = {}
+    self.client = None
+    
+    # Base URI - must not include trailing slash
+    self.base_uri = 'http://www.ua2.org/uaJSON'
+    
     # If we're given a filename, parse that (as JSON) for the authentication details
     if filename:
       try:
