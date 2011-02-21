@@ -4,7 +4,7 @@ import re
 class StringWriter(NullWriter):
     def __init__(self, maxcol=72):
         self.lines = []
-        self.maxcol = maxcol
+        self.maxcol = maxcol - 2
         NullWriter.__init__(self)
         self.reset()
 
