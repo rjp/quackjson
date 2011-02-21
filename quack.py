@@ -1,6 +1,7 @@
 import curses
 from uaclient import UAClient
 from datetime import datetime
+from linebreak import linebreak
 
 class qMenuOption:
   def __init__(self, character, description):
@@ -118,6 +119,9 @@ class qUAck(UAClient):
     menu.add_option(qMenuOption('j', 'Jump to folder / message'))
     menu.add_option(qMenuOption('l', 'List of folders'))
     menu.add_option(qMenuOption('q', 'Quit'))
+
+# TODO put this somewhere more sensible, maybe
+    self.height, self.width = self.stdscr.getmaxyx()
     
     menu_continue = True
 
@@ -244,6 +248,7 @@ class qUAck(UAClient):
       if 'body' in message: # to be fair, this should always be true
         if message['body'] is None: # empty body is returned as NoneType, oddly
           message['body'] = ' '
-        self.stdscr.addstr("\n\n" + message['body'] + "\n")
+        w_body = linebreak(message['body'], self.width)
+        self.stdscr.addstr("\n\n" + w_body + "\n")
       
       self.stdscr.refresh()
