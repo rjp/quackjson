@@ -2,6 +2,7 @@ import curses
 from uaclient import UAClient
 from datetime import datetime
 from linebreak import linebreak
+from collections import deque
 
 class qMenuOption:
   def __init__(self, character, description):
@@ -213,14 +214,38 @@ class qUAck(UAClient):
     if folder is None:
       self.stdscr.addstr("\nNo such folder.")
       self.stdscr.refresh()
-      
+    else:
+      menu = qMenu(folder_jump)
+      menu.add_option(qMenuOption('n', 'Next'))
+      menu.add_option(qMenuOption('q', 'Quit'))
+      reading_continue = True
+      messages = self.get_folder_messages(folder_jump)
+      init_size = len(messages)
+      if init_size == 0:
+        reading_continue = False
+      else:
+        queue = deque(messages)
+      while reading_continue:
+        menu.name = "%s %d/%d" % (folder_jump, len(queue), init_size)
+        self.print_menu_text(menu, elapsed_time = True)
+        c = self.stdscr.getch()
+        if c == ord('q'):
+          reading_continue = False
+        elif c == ord('n'):
+          mid = queue.popleft()
+          if len(queue) == 0: # abort when we run out of messages
+            reading_continue = False
+          self.show_message(mid)
+
   def jump_message_menu(self):
     self.stdscr.addstr("\nMessage ID (RETURN to abort): ")
     self.stdscr.refresh()
     message_jump = self.stdscr.getstr()
     
     message = self.get_message(message_jump)
-    
+    self.show_message(message)
+
+  def show_message(self, message):
     if message is None:
       self.stdscr.addstr("\nNo such message.")
       self.stdscr.refresh()
