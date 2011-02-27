@@ -13,7 +13,7 @@ class qMenu:
   def __init__(self, name, options = None):
     self.options = []
     self.name = name
-    
+
     if options:
       self.options = options
 
@@ -28,12 +28,12 @@ class qUAck(UAClient):
 
     self.start_time = datetime.now()
     curses.wrapper(self.startcurses)
-  
+
   def set_options(self):
     """ Set the options for this instance, reverting to defaults if not specified """
     if 'options' not in self.config:
       self.config['options'] = {}
-    
+
     if 'menus' not in self.config['options']:
       self.config['options']['menus'] = 'expert'
 
@@ -45,21 +45,21 @@ class qUAck(UAClient):
       self.stdscr.addstr(' ')
 
     self.stdscr.addstr(menu.name)
-    
+
     if self.config['options']['menus'] == 'intermediate':
       self.stdscr.addstr(' (')
-    
+
       for option in menu.options:
         self.stdscr.addstr(option.character.upper(), self.colours['yellow_black_bold'])
-    
+
       self.stdscr.addstr(', ?+ for help)')
-    
+
     self.stdscr.addstr(': ')
     self.stdscr.refresh()
-    
+
   def print_menu_help(self, menu):
     self.stdscr.addstr("\nCommands:")
-    
+
     for option in menu.options:
       self.stdscr.addstr("\n ")
       self.stdscr.addstr(option.character.upper(), self.colours['yellow_black_bold'])
@@ -98,11 +98,11 @@ class qUAck(UAClient):
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
     self.colours['green_black'] = curses.color_pair(2)
     self.colours['green_black_bold'] = self.colours['green_black'] | curses.A_BOLD
-    
+
     curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
     self.colours['blue_black'] = curses.color_pair(3)
     self.colours['blue_black_bold'] = self.colours['blue_black'] | curses.A_BOLD
-    
+
     curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
     self.colours['cyan_black'] = curses.color_pair(4)
     self.colours['cyan_black_bold'] = self.colours['cyan_black'] | curses.A_BOLD
@@ -110,7 +110,7 @@ class qUAck(UAClient):
   def unrecognised_command(self):
     self.stdscr.addstr("\nUnrecognised command. Type ? for help")
     self.stdscr.refresh()
-    
+
   def datetimeformat(self, timestamp, format):
     dt = datetime.fromtimestamp(int(timestamp))
     return dt.strftime(format)
@@ -123,7 +123,7 @@ class qUAck(UAClient):
 
 # TODO put this somewhere more sensible, maybe
     self.height, self.width = self.stdscr.getmaxyx()
-    
+
     menu_continue = True
 
     while menu_continue:
@@ -181,14 +181,14 @@ class qUAck(UAClient):
     menu.add_option(qMenuOption('f', 'Folder'))
     menu.add_option(qMenuOption('m', 'Message'))
     menu.add_option(qMenuOption('x', 'eXit'))
-    
+
     menu_continue = True
-    
+
     while menu_continue:
       self.print_menu_text(menu)
-      
+
       c = self.stdscr.getch()
-     
+
       if c == ord('x'):
         menu_continue = False
         pass
@@ -203,14 +203,14 @@ class qUAck(UAClient):
       else:
         self.unrecognised_command()
         menu_continue = False
-        
+
   def jump_folder_menu(self):
     self.stdscr.addstr("\nFolder name (RETURN to abort): ")
     self.stdscr.refresh()
     folder_jump = self.stdscr.getstr()
-    
+
     folder = self.get_folder(folder_jump)
-    
+
     if folder is None:
       self.stdscr.addstr("\nNo such folder.")
       self.stdscr.refresh()
@@ -241,7 +241,6 @@ class qUAck(UAClient):
     self.stdscr.addstr("\nMessage ID (RETURN to abort): ")
     self.stdscr.refresh()
     message_jump = self.stdscr.getstr()
-    
     message = self.get_message(message_jump)
     self.show_message(message)
 
@@ -254,26 +253,26 @@ class qUAck(UAClient):
       self.stdscr.addstr(str(message['id']), self.colours['cyan_black_bold'])
       self.stdscr.addstr(" in ")
       self.stdscr.addstr(message['folder'], self.colours['cyan_black_bold'])
-      
+
       self.stdscr.addstr("\nDate: ")
       self.stdscr.addstr(self.datetimeformat(message['epoch'], '%A, %d %B %Y - %H:%M:%S'), self.colours['green_black_bold'])
-      
+
       self.stdscr.addstr("\nFrom: ")
       self.stdscr.addstr(message['from'], self.colours['green_black_bold'])
-      
+
       if 'to' in message:
         self.stdscr.addstr("\nTo: ")
         self.stdscr.addstr(message['to'], self.colours['green_black_bold'])
-      
+
       if 'subject' in message:
         if message['subject'] is not None: # better than a default subject?
           self.stdscr.addstr("\nSubject: ")
           self.stdscr.addstr(message['subject'], self.colours['green_black_bold'])
-      
+
       if 'body' in message: # to be fair, this should always be true
         if message['body'] is None: # empty body is returned as NoneType, oddly
           message['body'] = ' '
         w_body = linebreak(message['body'], self.width)
         self.stdscr.addstr("\n\n" + w_body + "\n")
-      
+
       self.stdscr.refresh()
